@@ -68,7 +68,7 @@ for subject in "$input_directory"/*/; do
     # rm "$denoised_image"
 
     # Get label automatically using GMM
-    python3 Grad.py -d "$output_dir" -n "$n_components" -e "$eps" -k "$kernel_size"
+    python3 GMM.py -d "$output_dir" -n "$n_components" -e "$eps" -k "$kernel_size"
 
     endt=$(date +%s)
     runtime=$((endt-start))
@@ -76,7 +76,3 @@ for subject in "$input_directory"/*/; do
 done
 
 echo "Preprocessing completed"
-
-# ImageMath 3 "./output/0001_TOF/normalized.nii.gz" Normalize "./input/0001_TOF/image.nii.gz"
-# N4BiasFieldCorrection -d 3 -v 1 -s 4 -b [ 180 ] -c [ 50x50x50x50, 0.0 ] -i "./output/0001_TOF/normalized.nii.gz" -o "./output/0001_TOF/corrected.nii.gz"
-# python3 GMM.py -d "./output/0002_TOF/normalized.nii.gz" -n 6 -e 0.03 -k 7
