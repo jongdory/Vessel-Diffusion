@@ -1,0 +1,83 @@
+model:
+  base_learning_rate: 2.0e-06
+  target: ddpm.models.diffusion.ddpm.LatentDiffusion
+  params:
+    linear_start: 0.0015
+    linear_end: 0.0195
+    num_timesteps_cond: 1
+    log_every_t: 50000
+    timesteps: 1000
+    first_stage_key: mask
+    cond_stage_key: frangi
+    image_size: 256
+    channels: 1
+    cond_stage_trainable: true
+    conditioning_key: concat #concat
+    monitor: val/loss_simple_ema
+    ckpt_path:   
+    unet_config:
+      target: ddpm.modules.diffusionmodules.openaimodel.UNetModel
+      params:
+        image_size: 256
+        in_channels: 1
+        out_channels: 1
+        model_channels: 32
+        attention_resolutions:
+        # - 32
+        # - 8
+        # - 2
+        # - 1
+        num_res_blocks: 1
+        channel_mult:
+        - 1
+        - 2
+        - 4
+        num_head_channels: 8
+        use_spatial_transformer: true
+        transformer_depth: 1
+        context_dim: 4
+    cond_stage_config: 
+      target: ddpm.models.diffusion.ddpm.EncoderUNetModel
+      params:
+        image_size: 256
+        dims: 3
+        in_channels: 2
+        out_channels: 128
+        model_channels: 32
+        num_res_blocks: 1
+        channel_mult:
+        - 1
+        - 2
+        - 4
+        context_dim: 4
+data:
+  target: main.DataModuleFromConfig
+  params:
+    batch_size: 1
+    num_workers: 12
+    wrap: false
+    train:
+      target: ddpm.data.tof.CustomTrain
+      params:
+        data_path: /data/train
+    validation:
+      target: ddpm.data.tof.CustomTest
+      params:
+        data_path: /data/val
+    test:
+      target: ddpm.data.tof.CustomTest
+      params:
+        data_path: /data/test
+
+
+lightning:
+  callbacks:
+    image_logger:
+      target: main.ImageLogger
+      params:
+        batch_frequency: 50000
+        max_images: 8
+        increase_log_steps: False
+
+  trainer:
+    benchmark: True
